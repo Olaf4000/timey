@@ -86,6 +86,16 @@ while exit_flag == 0:
             print("!> Error while ending the session!")
             last_output.append("Error while ending the session!")
 
+    # info
+    elif user_input_arr[0] == "info":
+        try:
+            timey_info.info()
+
+        except:
+            last_output.append("Error with info!")
+            print("!> Error with info!")
+
+    # info day
     elif user_input_arr[0] == "info_day":
         try:
             try:
@@ -98,6 +108,7 @@ while exit_flag == 0:
             last_output.append("Error with info_day!")
             print("!> Error with info_day!")
 
+    # info week
     elif user_input_arr[0] == "info_week":
         try:
             try:
