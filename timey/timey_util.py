@@ -1,4 +1,9 @@
+import os
+
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def aggregate_df_with_duration(df: pd.DataFrame) -> pd.DataFrame:

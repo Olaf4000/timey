@@ -97,6 +97,7 @@ def info():
         user_input_arr = user_input.split()
 
         if len(user_input_arr) == 0:
+
             exit_flag = True
             return
         elif len(user_input_arr) > 0:
