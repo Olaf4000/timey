@@ -128,3 +128,14 @@ def pair_df_to_list(df: pd.DataFrame) -> list[str]:
         stunden, minuten = divmod(minuten_total, 60)
         result.append(f"> {datum}: {stunden}h {minuten}min")
     return result
+
+
+def filter_df_on_dates(df, date):
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    mask = df["timestamp"].dt.date == pd.to_datetime(date).date()
+    df_filtered_to_day = df.loc[mask]
+    return df_filtered_to_day
+
+
+def filter_df_on_description(df, description):
+    return df[df["description"] == description]
