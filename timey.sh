@@ -1,26 +1,31 @@
 #!/bin/bash
-
 # exit on error
 set -e
 
-# Create virtual environment if not exists
+# Absoluten Pfad zum Ordner dieses Scripts bestimmen
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# In Projektordner wechseln (damit requirements.txt & venv stimmen)
+cd "$SCRIPT_DIR"
+
+# Virtuelle Umgebung erstellen falls nicht vorhanden
 if [ ! -d ".venv" ]; then
     echo "Creating virtual environment..."
     python3 -m venv .venv
 fi
 
-# Activate venv
+# Aktivieren
 source .venv/bin/activate
 
-# Upgrade pip
+# pip updaten
 pip install --upgrade pip
 
-# Install dependencies
+# Abhängigkeiten installieren falls requirements.txt existiert
 if [ -f "requirements.txt" ]; then
     echo "Installing dependencies..."
     pip install -r requirements.txt
 fi
 
-# Start python file (replace app.py with your file)
+# Python-Skript starten + Parameter durchreichen
 echo "Starting application..."
-python timey.py
+python timey.py "$@"
