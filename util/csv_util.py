@@ -1,7 +1,10 @@
 import csv
 import datetime
+import os
+from dotenv import load_dotenv
 
-time_filename = 'time.csv'
+load_dotenv()
+time_filename = os.getenv('TIMEY_TIME_FILE_PATH')
 
 def write_time_entry(type, description):
     data = [datetime.datetime.now(), type, description]
