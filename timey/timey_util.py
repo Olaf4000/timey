@@ -55,9 +55,23 @@ def aggregate_df_with_duration(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def generate_progress_bar(bar_length, percent_completed):
-    bar_length -= 9
+    vis_percent_completed = percent_completed
 
-    if percent_completed >= 100:
+    bar_length -= 9
+    bar_character_1 = os.getenv("BAR_CHARACTER_1")
+    bar_character_2 = os.getenv("BAR_CHARACTER_2")
+
+    if 100 <= percent_completed < 200:
+        percent_completed = percent_completed - 100
+        bar_character_2 = bar_character_1
+        bar_character_1 = os.getenv("BAR_CHARACTER_OVERLOAD_1")
+
+    if 200 <= percent_completed < 300:
+        percent_completed = percent_completed - 200
+        bar_character_2 = bar_character_1
+        bar_character_1 = os.getenv("BAR_CHARACTER_OVERLOAD_2")
+
+    if percent_completed >= 300:
         output_string = "["
         for i in range(bar_length):
             output_string += os.getenv("BAR_CHARACTER_1")
@@ -70,20 +84,23 @@ def generate_progress_bar(bar_length, percent_completed):
     output_string = "["
 
     for i in range(completed_section):
-        output_string += os.getenv("BAR_CHARACTER_1")
+        output_string += bar_character_1
 
     for i in range(bar_length - completed_section):
-        output_string += os.getenv("BAR_CHARACTER_2")
+        output_string += bar_character_2
 
     output_string += "] "
-    if percent_completed < 100:
+
+    if vis_percent_completed < 100:
         output_string += " "
-        output_string += f"{str(round(percent_completed))}%"
-    elif percent_completed < 10:
+        output_string += f"{str(round(vis_percent_completed))}%"
+
+    elif vis_percent_completed < 10:
         output_string += " "
-        output_string += f"{str(round(percent_completed))}%"
+        output_string += f" {str(round(vis_percent_completed))}%"
+
     else:
-        output_string += f"{str(round(percent_completed))}%"
+        output_string += f"{str(round(vis_percent_completed))}%"
 
     return output_string
 

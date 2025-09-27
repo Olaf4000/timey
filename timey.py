@@ -1,4 +1,5 @@
 import argparse
+import datetime
 
 from dotenv import load_dotenv
 
@@ -112,8 +113,8 @@ while exit_flag == 0:
     elif user_input_arr[0] == "info_week":
         try:
             try:
-                timey_info.info_week(user_input_arr[1])
-
+                timey_info.info_week(datetime.datetime.strptime(user_input_arr[1], "%Y-%m-%d").date())
+            
             except:
                 timey_info.info_week()
 
