@@ -147,7 +147,7 @@ def info_day(date=datetime.datetime.now().date()):
 
 def info_week(date=datetime.datetime.now().date()):
     weekdays = [(date - datetime.timedelta(days=date.weekday())) + datetime.timedelta(days=i) for i in
-                range(5)]  # determines the dates for the weekdays of the specified week
+                range(7)]  # determines the dates for the weekdays of the specified week
 
     weekly_worked_minutes = 0
     for d in weekdays:
@@ -182,6 +182,10 @@ def info_week(date=datetime.datetime.now().date()):
             (get_worked_minutes_of_day(weekdays[3]) / int(os.getenv("WORKDAY_LENGTH"))) * 100, 2)),
         "Fri: " + timey_util.generate_progress_bar(int(os.getenv("TEXTBOX_WIDTH")) - 5, round(
             (get_worked_minutes_of_day(weekdays[4]) / int(os.getenv("WORKDAY_LENGTH"))) * 100, 2)),
+        "Sat: " + timey_util.generate_progress_bar(int(os.getenv("TEXTBOX_WIDTH")) - 5, round(
+            (get_worked_minutes_of_day(weekdays[5]) / int(os.getenv("WORKDAY_LENGTH"))) * 100, 2)),
+        "Sun: " + timey_util.generate_progress_bar(int(os.getenv("TEXTBOX_WIDTH")) - 5, round(
+            (get_worked_minutes_of_day(weekdays[6]) / int(os.getenv("WORKDAY_LENGTH"))) * 100, 2)),
         " ",
         weekdays_string
     ], appending=1)
