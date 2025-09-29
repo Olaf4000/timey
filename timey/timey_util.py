@@ -7,51 +7,73 @@ load_dotenv()
 
 
 def aggregate_df_with_duration(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Erwartet ein DataFrame mit Spalten:
-      - 'description' : Kennung der Session/Aktion
-      - 'type'        : 'start' oder 'end'
-      - 'timestamp'   : Zeitstempel (str, datetime oder numpy datetime64)
-
-    Ergebnis:
-      pro 'description' je ein 'start', 'end' und 'duration' (end - start).
-      Bei mehreren Starts/Ends wird standardmäßig der früheste Start und der
-      späteste Endzeitpunkt verwendet.
-    """
-    if not {"description", "type", "timestamp"} <= set(df.columns):
+    required = {"description", "type", "timestamp"}
+    if not required.issubset(df.columns):
         raise ValueError("Benötige Spalten: 'description', 'type', 'timestamp'")
 
-    # Timestamps sicher nach datetime konvertieren (UTC-tolerant, NaT für unlesbare Werte)
-    ts = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
-    work = df.assign(timestamp=ts).dropna(subset=["timestamp"])
-
-    # Frühester Start pro description
-    starts = (
-        work[work["type"].eq("start")]
-        .groupby("description", as_index=False)["timestamp"].min()
-        .rename(columns={"timestamp": "start"})
+    work = (
+        df.assign(timestamp=pd.to_datetime(df["timestamp"], utc=True, errors="coerce"))
+        .dropna(subset=["timestamp"])
+        .copy()
     )
+    work["type"] = work["type"].str.lower().str.strip()
 
-    # Spätester Endzeitpunkt pro description
-    ends = (
-        work[work["type"].eq("end")]
-        .groupby("description", as_index=False)["timestamp"].max()
-        .rename(columns={"timestamp": "end"})
-    )
+    out_records = []
 
-    # Outer-Join, damit auch unvollständige Paare sichtbar bleiben
-    out = starts.merge(ends, on="description", how="outer")
+    # Pro description abarbeiten, chronologisch
+    for desc, grp in work.sort_values("timestamp").groupby("description", sort=False):
+        grp = grp.sort_values("timestamp", kind="stable")
+        pending_starts = []
+        session = 1
 
-    # Dauer berechnen (bleibt NaT, wenn start oder end fehlt)
-    out["duration"] = out["end"] - out["start"]
+        for _, row in grp.iterrows():
+            t = row["type"]
+            ts = row["timestamp"]
 
-    # Optional: negative Dauern (falls Daten verdreht) auf NaT setzen
-    mask_bad = out["duration"].notna() & (out["duration"] < pd.Timedelta(0))
-    if mask_bad.any():
-        out.loc[mask_bad, "duration"] = pd.NaT
+            if t == "start":
+                pending_starts.append(ts)
 
-    # Aufräumen & sortieren
-    return out.sort_values("description", kind="stable").reset_index(drop=True)
+            elif t == "end":
+                if pending_starts:
+                    start_ts = pending_starts.pop(0)  # FIFO: ältester offener Start
+                    end_ts = ts
+                else:
+                    # End ohne vorherigen Start
+                    start_ts = pd.NaT
+                    end_ts = ts
+
+                duration = end_ts - start_ts if pd.notna(start_ts) and pd.notna(end_ts) else pd.NaT
+                # Negative Dauer (sollte bei FIFO nicht vorkommen) absichern
+                if pd.notna(duration) and duration < pd.Timedelta(0):
+                    duration = pd.NaT
+
+                out_records.append({
+                    "description": desc,
+                    "session": session,
+                    "start": start_ts,
+                    "end": end_ts,
+                    "duration": duration,
+                })
+                session += 1
+
+        # Verbleibende Starts ohne End erzeugen
+        for start_ts in pending_starts:
+            out_records.append({
+                "description": desc,
+                "session": session,
+                "start": start_ts,
+                "end": pd.NaT,
+                "duration": pd.NaT,
+            })
+            session += 1
+
+    out = pd.DataFrame(out_records, columns=["description", "session", "start", "end", "duration"])
+    if not out.empty:
+        out = out.sort_values(["description", "session"], kind="stable").reset_index(drop=True)
+    else:
+        out = pd.DataFrame(columns=["description", "session", "start", "end", "duration"])
+
+    return out
 
 
 def generate_progress_bar(bar_length, percent_completed):
