@@ -87,6 +87,15 @@ while exit_flag == 0:
             print("!> Error while ending the session!")
             last_output.append("Error while ending the session!")
 
+    elif user_input_arr[0] == "restart":
+        try:
+            timey_base.restart_session()
+            last_output.append(f"Restarted session!")
+
+        except:
+            print("!> Error while restarting the session!")
+            last_output.append("Error while restarting the session!")
+
     # info
     elif user_input_arr[0] == "info":
         try:
@@ -114,7 +123,7 @@ while exit_flag == 0:
         try:
             try:
                 timey_info.info_week(datetime.datetime.strptime(user_input_arr[1], "%Y-%m-%d").date())
-            
+
             except:
                 timey_info.info_week()
 
