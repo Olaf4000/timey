@@ -11,6 +11,8 @@ def basic_help():
         "> help or h - opens this page",
         " > start $session_name - starts new session",
         " > stop - stops current session",
+        " > restart - restarts the last session",
+        " > switch - ends the current session and starts a new session",
         " > info - get an overview of your projects",
         " > info_day $YYYY-MM-DD(opt.) - stats of the specified date. If not specified, the current date will be used.",
     ], appending=1)

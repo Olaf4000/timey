@@ -5,8 +5,7 @@ def start_session(description):
     last_entry = cu.read_last_entry()
 
     if last_entry[1] == "start":
-        print("!> Can not start a session. There is a active session!")
-        return
+        raise ValueError("Can not start a session. There is a active session!")
 
     cu.write_time_entry("start", description)
     print(f"i> Started session {description}!")
@@ -32,3 +31,14 @@ def restart_session():
     else:
         print("!> There is no session to restart")
         raise ValueError("There is no session to restart")
+
+
+def switch_session(description):
+    last_entry = cu.read_last_entry()
+
+    if last_entry[1] == "end":
+        raise ValueError("There is no session active session to switch from")
+
+    else:
+        end_session()
+        start_session(description)

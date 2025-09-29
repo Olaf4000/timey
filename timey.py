@@ -66,7 +66,6 @@ while exit_flag == 0:
             timey_help.basic_help()
 
         except:
-            print("!> Failed to enter help page!")
             last_output.append("Failed to enter help page!")
 
     elif user_input_arr[0] == "start":
@@ -75,7 +74,6 @@ while exit_flag == 0:
             timey_base.start_session(user_input_arr[1])
 
         except:
-            print("!> Error while starting the session!")
             last_output.append("Error while starting the session!")
 
     elif user_input_arr[0] == "end":
@@ -84,7 +82,6 @@ while exit_flag == 0:
             last_output.append(f"Ended session!")
 
         except:
-            print("!> Error while ending the session!")
             last_output.append("Error while ending the session!")
 
     elif user_input_arr[0] == "restart":
@@ -93,10 +90,17 @@ while exit_flag == 0:
             last_output.append(f"Restarted session!")
 
         except:
-            print("!> Error while restarting the session!")
             last_output.append("Error while restarting the session!")
 
-    # info
+    elif user_input_arr[0] == "switch":
+        try:
+            timey_base.switch_session(user_input_arr[1])
+            last_output.append(f"Switched session to {user_input_arr[1]}!")
+
+        except:
+            last_output.append("Error while switching the session!")
+
+
     elif user_input_arr[0] == "info":
         try:
             timey_info.info()
